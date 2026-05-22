@@ -1,0 +1,15 @@
+# Entornos virtuales de Python
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Variables de entorno (Contraseñas y Secretos)
+.env
+
+# Archivos ocultos del sistema operativo
+.DS_Store
+Thumbs.db
