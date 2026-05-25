@@ -1,0 +1,65 @@
+# ============================================================
+# Sistema de Reservas de Espacios Institucionales
+# Docker Compose — Entorno de desarrollo
+# Servicios: db (PostgreSQL) + backend (FastAPI)
+# ============================================================
+
+services:
+
+  # ──────────────────────────────────────────────────────────
+  # Servicio 1: Base de datos PostgreSQL
+  # ──────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: reservas_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reservas_db
+    ports:
+      - "5432:5432"        # puerto_host:puerto_contenedor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data     # persistencia de datos
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql  # script inicial
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d reservas_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - reservas_net
+
+  # ──────────────────────────────────────────────────────────
+  # Servicio 2: Backend FastAPI
+  # ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: reservas_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy   # espera a que PostgreSQL esté listo
+    networks:
+      - reservas_net
+    volumes:
+      - .:/app                       # recarga en vivo del código
+
+# ──────────────────────────────────────────────────────────
+# Red interna entre contenedores
+# ──────────────────────────────────────────────────────────
+networks:
+  reservas_net:
+    driver: bridge
+
+# ──────────────────────────────────────────────────────────
+# Volumen para persistir los datos de PostgreSQL
+# ──────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
