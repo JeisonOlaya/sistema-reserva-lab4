@@ -146,9 +146,7 @@ def _validar_sin_solapamiento(
         )
 
 
-# ──────────────────────────────────────────────
 # Operaciones CRUD
-# ──────────────────────────────────────────────
 
 def crear_reserva(db: Session, datos: ReservaCreate, usuario: Usuario) -> Reserva:
     """
