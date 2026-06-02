@@ -20,7 +20,7 @@ services:
     ports:
       - "5432:5432"        # puerto_host:puerto_contenedor
     volumes:
-      - postgres_data:/var/lib/postgresql/data     # persistencia de datos
+      - postgres_data:/var/lib/postgresql/data    
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql  # script inicial
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d reservas_db"]
@@ -45,11 +45,11 @@ services:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy   # espera a que PostgreSQL esté listo
+        condition: service_healthy  
     networks:
       - reservas_net
     volumes:
-      - .:/app                       # recarga en vivo del código
+      - .:/app                       
 
 # ──────────────────────────────────────────────────────────
 # Red interna entre contenedores
