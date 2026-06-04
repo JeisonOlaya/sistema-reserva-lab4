@@ -1,14 +1,6 @@
-# ============================================================
-# Sistema de Reservas de Espacios Institucionales
-# Docker Compose — Entorno de desarrollo
-# Servicios: db (PostgreSQL) + backend (FastAPI)
-# ============================================================
-
 services:
 
-  # ──────────────────────────────────────────────────────────
-  # Servicio 1: Base de datos PostgreSQL
-  # ──────────────────────────────────────────────────────────
+  # Base de datos PostgreSQL
   db:
     image: postgres:16-alpine
     container_name: reservas_db
@@ -18,10 +10,10 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: reservas_db
     ports:
-      - "5432:5432"        # puerto_host:puerto_contenedor
+      - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data    
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql  # script inicial
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d reservas_db"]
       interval: 10s
@@ -30,9 +22,7 @@ services:
     networks:
       - reservas_net
 
-  # ──────────────────────────────────────────────────────────
-  # Servicio 2: Backend FastAPI
-  # ──────────────────────────────────────────────────────────
+  # Backend FastAPI
   backend:
     build:
       context: .
@@ -40,26 +30,34 @@ services:
     container_name: reservas_backend
     restart: unless-stopped
     env_file:
-      - .env
+      - .env.example
     ports:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy  
+        condition: service_healthy
     networks:
       - reservas_net
     volumes:
-      - .:/app                       
+      - .:/app
 
-# ──────────────────────────────────────────────────────────
-# Red interna entre contenedores
-# ──────────────────────────────────────────────────────────
+  # Frontend React + Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.Frontend
+    container_name: reservas_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - reservas_net
+
 networks:
   reservas_net:
     driver: bridge
 
-# ──────────────────────────────────────────────────────────
-# Volumen para persistir los datos de PostgreSQL
-# ──────────────────────────────────────────────────────────
 volumes:
   postgres_data:

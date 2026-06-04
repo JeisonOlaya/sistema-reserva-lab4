@@ -1,0 +1,20 @@
+# Imagen oficial ligera de Node.js
+FROM node:20-alpine
+
+# Directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# Copiamos primero package.json y package-lock.json
+COPY package*.json ./
+
+# Instalamos dependencias
+RUN npm install
+
+# Copiamos el resto del proyecto React
+COPY . .
+
+# Puerto utilizado por Vite
+EXPOSE 5173
+
+# Ejecutar la aplicación React
+CMD ["npm", "run", "dev", "--", "--host"]
