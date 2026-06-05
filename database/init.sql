@@ -1,23 +1,7 @@
--- ============================================================
--- Sistema de Reservas de Espacios Institucionales
--- Script de inicialización de base de datos
--- Compatible con PostgreSQL 14+
--- ============================================================
--- INSTRUCCIONES DE USO:
---   Opción 1 (terminal):
---     psql -U postgres -d reservas_db -f database/init.sql
---   Opción 2 (Docker Compose):
---     Montar este archivo en /docker-entrypoint-initdb.d/
--- ============================================================
-
--- ------------------------------------------------------------
--- Extensiones útiles
--- ------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";  -- búsquedas por similitud de texto
 
 -- ------------------------------------------------------------
 -- Eliminar tablas si existen (para reinicialización limpia)
--- El orden importa por las claves foráneas
 -- ------------------------------------------------------------
 DROP TABLE IF EXISTS reservas  CASCADE;
 DROP TABLE IF EXISTS espacios  CASCADE;
@@ -99,8 +83,7 @@ COMMENT ON COLUMN reservas.hora_fin           IS 'Hora de fin del bloque reserva
 COMMENT ON COLUMN reservas.cantidad_asistentes IS 'Número de personas que asistirán';
 COMMENT ON COLUMN reservas.estado             IS 'Estado: esperando | aprobada | rechazada';
 
--- Índice compuesto para acelerar la consulta de solapamiento de horarios
--- (la validación más crítica del sistema)
+
 CREATE INDEX idx_reservas_disponibilidad
     ON reservas (id_espacio, fecha, estado)
     WHERE estado IN ('esperando', 'aprobada');
@@ -109,8 +92,6 @@ CREATE INDEX idx_reservas_disponibilidad
 CREATE INDEX idx_reservas_usuario ON reservas (id_usuario);
 
 -- ------------------------------------------------------------
--- Vista útil: reservas con información completa
--- Facilita consultas desde herramientas externas o reportes
 -- ------------------------------------------------------------
 CREATE OR REPLACE VIEW v_reservas_detalle AS
 SELECT

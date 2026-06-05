@@ -79,7 +79,7 @@ ESPACIOS_INICIALES = [
         "nombre": "Laboratorio de Electrónica",
         "ubicacion": "Bloque D, Piso 1 — Sala 101",
         "capacidad": 25,
-        "estado": "inactivo",   # ejemplo de espacio no reservable
+        "estado": "inactivo", 
     },
 ]
 
